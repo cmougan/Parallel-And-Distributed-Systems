@@ -1,0 +1,186 @@
+Q1.
+
+mysql> select * from products
+    -> where category = "meat"
+    -> order by (description)
+    -> limit 5;
+
++----+----------+----------------------+
+| id | category | description          |
++----+----------+----------------------+
+| 14 | meat     |  roast chicken       |
+| 96 | meat     | Beef Flat Iron Steak |
+| 97 | meat     | Chevere Logs         |
+| 22 | meat     | Chicken - Breast     |
+| 56 | meat     | Cornish Hen          |
++----+----------+----------------------+
+
+Q2.
+
+mysql> select * from products 
+    -> where lower(description) like '%beer%';
+
++----+----------+-------------------+
+| id | category | description       |
++----+----------+-------------------+
+| 29 | spirits  | Beer - Moosehead  |
+| 33 | spirit   | Beer - Blue Light |
++----+----------+-------------------+
+
+Q3.
+
+mysql> select *
+    -> from products
+    -> natural join stock
+    -> limit 5;
+
++----+----------+--------------+----------+
+| id | category | description  | quantity |
++----+----------+--------------+----------+
+|  1 | soda     | mountain dew |       50 |
+|  2 | dairy    | skimmed milk |       87 |
+|  3 | spirits  | rhein        |        2 |
+|  4 | dairy    | milk         |       63 |
+|  5 | Cleaning | soap-2       |       46 |
++----+----------+--------------+----------+
+
+Q4.
+
+mysql> select custId, sum(quant) as 'total'
+    -> from orders
+    -> group by (custId)
+    -> order by (total) desc
+    -> limit 5;
+
++--------+-------+
+| custId | total |
++--------+-------+
+|     12 |   498 |
+|     72 |   407 |
+|     67 |   390 |
+|     68 |   379 |
+|      5 |   357 |
++--------+-------+
+
+Q5.
+
+mysql> select custId, sum(quant) as 'total', providers.name
+    -> from orders
+    -> join providers on (orders.custId = providers.id)
+    -> group by custId
+    -> order by total desc
+    -> limit 5;
+
++--------+-------+-------------+
+| custId | total | name        |
++--------+-------+-------------+
+|     46 |   491 | Jabberbean  |
+|     75 |   434 | Skimia      |
+|     78 |   422 | Eazzy       |
+|     52 |   393 | Twitterwire |
+|      9 |   362 | Meezzy      |
++--------+-------+-------------+
+
+Q6.
+
+mysql> select count(distinct providers.name)
+    -> from providers
+    -> join orders on (orders.provId = providers.id)
+    -> join products on (orders.prodId = products.id)
+    -> join stock on (products.id = stock.id);
+
++--------------------------------+
+| count(distinct providers.name) |
++--------------------------------+
+|                             80 |
++--------------------------------+
+
+Q7.
+
+We get diferent outputs if we query in MariaDB and in mysql. In MariaDB the results are sorted by prodId.
+
+mysql> select prodId, avg(quant) as 'average'
+    -> from orders
+    -> group by (prodId)
+    -> limit 5;
+
++--------+---------+
+| prodId | average |
++--------+---------+
+|     30 | 39.6667 |
+|     61 | 43.5000 |
+|     27 | 45.8333 |
+|     97 | 35.0000 |
+|      7 | 74.6667 |
++--------+---------+
+
+MariaDB [orders]> select prodId, avg(quant) as 'average'
+               -> from orders
+               -> group by (prodId)
+               -> limit 5;
+
++--------+---------+
+| prodId | average |
++--------+---------+
+|      1 | 27.4286 |
+|      2 | 50.0000 |
+|      3 | 85.5000 |
+|      4 | 34.0000 |
+|      5 | 25.6667 |
++--------+---------+
+
+Q8. Done in new database
+
+mysql> select distinct customers.city
+    -> from customers
+    -> join providers on (customers.city = providers.city);
+
++--------+
+| city   |
++--------+
+| Krakow |
++--------+
+
+Q9. Done in new database
+
+mysql> select orders.id, orders.quant, orders2.id, orders2.quant
+    -> from orders join orders as orders2
+    -> on (orders.quant = 2*orders2.quant and orders.prodId = orders2.prodId);
+
++-----+-------+-----+-------+
+| id  | quant | id  | quant |
++-----+-------+-----+-------+
+| 165 |    64 |  32 |    32 |
+| 266 |    14 |  56 |     7 |
+|  59 |    40 |  96 |    20 |
+| 292 |    54 | 103 |    27 |
+| 161 |     0 | 161 |     0 |
+| 181 |    66 | 168 |    33 |
+| 226 |    86 | 199 |    43 |
+|  92 |    22 | 207 |    11 |
+| 257 |    56 | 237 |    28 |
+| 269 |    44 | 245 |    22 |
+|  21 |    16 | 253 |     8 |
+|  24 |    16 | 253 |     8 |
+| 258 |     0 | 258 |     0 |
+| 297 |    34 | 262 |    17 |
+| 283 |     0 | 283 |     0 |
++-----+-------+-----+-------+
+
+Q10. Done in new database
+
+mysql> select city, count(city)
+    -> from orders
+    -> join customers on (orders.custId = customers.id)
+    -> group by city limit 5;
+
++---------------+-------------+
+| city          | count(city) |
++---------------+-------------+
+| Huazhai       |           6 |
+| Peabiru       |          11 |
+| Moulay Yacoub |           1 |
+| Decatur       |           4 |
+| Darnah        |           2 |
++---------------+-------------+
+
